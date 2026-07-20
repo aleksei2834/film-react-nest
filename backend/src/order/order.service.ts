@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 
 import { ListResponseDto } from '../films/dto/films.dto';
-import { Schedule } from '../films/schemas/film.schema';
+import { Schedule } from '../films/entities/schedule.entity';
 import { FilmsRepository } from '../repository/films.repository';
 import { CreateOrderDto, OrderedTicketDto, TicketDto } from './dto/order.dto';
 
