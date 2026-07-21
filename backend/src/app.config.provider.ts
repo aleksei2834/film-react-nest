@@ -23,8 +23,8 @@ export const configProvider = {
         'DATABASE_URL',
         'postgres://localhost:5432/films',
       ),
-      username: configService.get<string>('DATABASE_USERNAME', ''),
-      password: configService.get<string>('DATABASE_PASSWORD', ''),
+      username: configService.get<string>('DATABASE_USERNAME', 'exampleuser'),
+      password: configService.get<string>('DATABASE_PASSWORD', 'examplepass'),
     },
   }),
 };
