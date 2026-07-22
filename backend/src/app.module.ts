@@ -15,19 +15,31 @@ import { OrderModule } from './order/order.module';
       cache: true,
     }),
     TypeOrmModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres' as const,
-        url: configService.get<string>(
-          'DATABASE_URL',
-          'postgres://localhost:5432/films',
-        ),
-        username: configService.get<string>('DATABASE_USERNAME'),
-        password: configService.get<string>('DATABASE_PASSWORD'),
-        autoLoadEntities: true,
-        synchronize: false,
-      }),
-    }),
+  inject: [ConfigService],
+  useFactory: (configService: ConfigService) => {
+    const connectionUrl = new URL(
+      configService.get<string>(
+        'DATABASE_URL',
+        'postgres://localhost:5432/films',
+      ),
+    );
+    connectionUrl.username = configService.get<string>(
+      'DATABASE_USERNAME',
+      '',
+    );
+    connectionUrl.password = configService.get<string>(
+      'DATABASE_PASSWORD',
+      '',
+    );
+
+    return {
+      type: 'postgres' as const,
+      url: connectionUrl.toString(),
+      autoLoadEntities: true,
+      synchronize: false,
+    };
+  },
+}),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
     }),
