@@ -18,7 +18,6 @@ function createLogger(type: string | undefined) {
   }
 }
 
-// Тест
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
