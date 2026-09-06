@@ -1,18 +1,71 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:16
-    container_name: postgres_container
     restart: unless-stopped
+    env_file: .env
     environment:
-      POSTGRES_USER: exampleuser
-      POSTGRES_PASSWORD: examplepass
-      POSTGRES_DB: films
-    ports:
-      - "5432:5432"
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./backend
+    image: ghcr.io/aleksei2834/film-backend:latest
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+    image: ghcr.io/aleksei2834/film-frontend:latest
+    restart: unless-stopped
+    volumes:
+      - frontend_dist:/usr/share/nginx/html
+    networks:
+      - app-network
+
+  nginx:
+    build:
+      context: ./nginx
+    image: ghcr.io/aleksei2834/film-nginx:latest
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    volumes:
+      - frontend_dist:/usr/share/nginx/html
+    networks:
+      - app-network
+
+networks:
+  app-network:
 
 volumes:
   postgres_data:
+  pgadmin_data:
+  frontend_dist:
